@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.555">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Arindam Baruah">
+<meta name="dcterms.date" content="2024-02-10">
+
+<title>R-insights 📊📈🖥️ - Utilisation of layered radar plots to understand how two entities differ from one another 🕸️🕵️‍♂️</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../../site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="../../../site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="../../../site_libs/datatables-binding-0.28/datatables.js"></script>
+<script src="../../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="../../../site_libs/dt-core-1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="../../../site_libs/dt-core-1.13.4/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="../../../site_libs/dt-core-1.13.4/js/jquery.dataTables.min.js"></script>
+<link href="../../../site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="../../../site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">R-insights 📊📈🖥️</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../posts/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../plots/index.html"> 
+<span class="menu-text">Infographics</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arinbaruah"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/arindam-baruah/"> <i class="bi bi-linkedin" role="img" aria-label="LinkedIn">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Utilisation of layered radar plots to understand how two entities differ from one another 🕸️🕵️‍♂️</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">data cleaning</div>
+                <div class="quarto-category">exploratory data analysis</div>
+                <div class="quarto-category">visualisation</div>
+                <div class="quarto-category">radar plot</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Arindam Baruah </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">February 10, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://y9s5q4c4.stackpathcdn.com/wp-content/uploads/2021/07/enzymology-1.png" style="width:40.0%;height:30.0%" class="figure-img"></p>
+<figcaption>“Source: Google images”</figcaption>
+</figure>
+</div>
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<p>The Enzyme Commission (EC) system is a widely accepted classification system used to categorize enzymes based on their catalytic activities. Enzymes play crucial roles in biological processes by accelerating chemical reactions and facilitating various metabolic pathways within living organisms. The EC system assigns a unique EC number to each enzyme, which provides valuable information about its function and specificity.</p>
+<div class="warning" style="background-color:#E9D8FD; color: #69337A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;">
+<span>
+<p style="margin-top:1em; text-align:center">
+<b>What are we trying to study ?</b>
+</p>
+<p style="margin-left:1em;">
+EC1 represents the class of enzymes known as oxidoreductases. These enzymes catalyze oxidation-reduction reactions, which involve the transfer of electrons between molecules. Oxidoreductases are involved in a wide range of biological processes, including energy production, biosynthesis, and detoxification. Examples of oxidoreductases include dehydrogenases, oxidases, reductases, and peroxidases.<br> <br> The <b> Enzyme Commission (EC) </b> system provides a systematic and standardized approach for classifying enzymes based on their catalytic activities. EC1 represents the class of oxidoreductases, which participate in oxidation-reduction reactions, while the second digit in the EC number provides more specific information about the enzyme’s function. This classification system facilitates the study of enzymes and helps researchers gain insights into their structure, function, and potential applications in various fields, including medicine, biotechnology, and industrial processes.
+</p>
+<p style="margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia">
+<b> - The internet </b> <i></i>
+</p>
+<p></p>
+</span></div>
+<p>Great ! We have all the libraries loaded. Next, we are gonna load the required dataset for conducting the enzyme classification analysis.</p>
+<p>We will use one dataset for the purpose of exploratory data analysis and training the classification model while the test dataset for testing the classification model on a completely new dataset.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 38
+     id BertzCT  Chi1 Chi1n Chi1v Chi2n Chi2v Chi3v Chi4n EState_VSA1
+  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
+1     0    323.  9.88  5.88  5.88  4.30  4.30  2.75 1.75          0  
+2     1    274.  7.26  4.44  5.83  3.29  4.49  2.20 1.29         45.1
+3     2    522. 10.9   8.53 11.1   6.67  9.52  5.82 1.77         15.6
+4     3    567. 12.5   7.09 12.8   6.48 11.0   7.91 3.07         95.6
+5     4    113.  4.41  2.87  2.87  1.88  1.88  1.04 0.728        18.0
+6     5    145.  5.54  3.48  3.48  2.48  2.48  1.51 0.671        36.9
+# ℹ 28 more variables: EState_VSA2 &lt;dbl&gt;, ExactMolWt &lt;dbl&gt;,
+#   FpDensityMorgan1 &lt;dbl&gt;, FpDensityMorgan2 &lt;dbl&gt;, FpDensityMorgan3 &lt;dbl&gt;,
+#   HallKierAlpha &lt;dbl&gt;, HeavyAtomMolWt &lt;dbl&gt;, Kappa3 &lt;dbl&gt;,
+#   MaxAbsEStateIndex &lt;dbl&gt;, MinEStateIndex &lt;dbl&gt;, NumHeteroatoms &lt;dbl&gt;,
+#   PEOE_VSA10 &lt;dbl&gt;, PEOE_VSA14 &lt;dbl&gt;, PEOE_VSA6 &lt;dbl&gt;, PEOE_VSA7 &lt;dbl&gt;,
+#   PEOE_VSA8 &lt;dbl&gt;, SMR_VSA10 &lt;dbl&gt;, SMR_VSA5 &lt;dbl&gt;, SlogP_VSA3 &lt;dbl&gt;,
+#   VSA_EState9 &lt;dbl&gt;, fr_COO &lt;dbl&gt;, fr_COO2 &lt;dbl&gt;, EC1 &lt;dbl&gt;, EC2 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>We can observe that there are multiple process parameters present in the dataset which can help us analyse and predict the values of <strong>EC1 and EC2</strong>. But what do all these variables tell us ? Following are the explanations of each of these variables.</p>
+<ol type="1">
+<li><p><strong>Id</strong>: This feature represents the identifier or unique identification number of a molecule. It serves as a reference but doesn’t directly contribute to the predictive model.</p></li>
+<li><p><strong>BertzCT</strong>: This feature corresponds to the Bertz complexity index, which measures the structural complexity of a molecule. It can provide insights into the intricacy of molecular structures.</p></li>
+<li><p><strong>Chi1</strong> : The Chi1 feature denotes the 1st order molecular connectivity index, which describes the topological connectivity of atoms in a molecule. It characterizes the atomic bonding pattern within the molecule.</p></li>
+<li><p><strong>Chi1n</strong> : This feature is the normalized version of the Chi1 index. It allows for standardized comparisons of the 1st order molecular connectivity across different molecules.</p></li>
+<li><p><strong>Chi1v</strong> : The Chi1v feature represents the 1st order molecular variance connectivity index. It captures the variance or diversity in the connectivity of atoms within a molecule.</p></li>
+<li><p><strong>Chi2n</strong> : The Chi2n feature indicates the 2nd order molecular connectivity index, which provides information about the extended connectivity of atoms in a molecule. It considers the neighboring atoms of each atom in the molecule.</p></li>
+<li><p><strong>Chi2v</strong> : Similar to Chi2n, the Chi2v feature measures the variance or diversity in the extended connectivity of atoms within a molecule at the 2nd order level.</p></li>
+<li><p><strong>Chi3v</strong> : The Chi3v feature represents the 3rd order molecular variance connectivity index. It captures the variance in the 3rd order connectivity patterns among atoms in a molecule.</p></li>
+<li><p><strong>Chi4n</strong> : This feature corresponds to the 4th order molecular connectivity index, which provides information about the extended connectivity of atoms in a molecule. The Chi4n index is normalized to allow for consistent comparisons across molecules.</p></li>
+<li><p><strong>EState_VSA1</strong> : EState_VSA1 is a feature that relates to the electrotopological state of a molecule. Specifically, it represents the Van der Waals surface area contribution for a specific atom type, contributing to the overall electrotopological state.</p></li>
+<li><p><strong>EState_VSA2</strong> : Similar to EState_VSA1, EState_VSA2 also represents the electrotopological state but for a different specific atom type.</p></li>
+<li><p><strong>ExactMolWt</strong> : This feature denotes the exact molecular weight of a molecule. It provides an accurate measurement of the mass of the molecule.</p></li>
+<li><p><strong>FpDensityMorgan1</strong> : FpDensityMorgan1 represents the Morgan fingerprint density for a specific radius of 1. Morgan fingerprints are a method for generating molecular fingerprints, and this feature captures the density of those fingerprints.</p></li>
+<li><p><strong>FpDensityMorgan2</strong> : Similar to FpDensityMorgan1, this feature represents the Morgan fingerprint density for a specific radius of 2.</p></li>
+<li><p><strong>FpDensityMorgan3</strong> : FpDensityMorgan3 corresponds to the Morgan fingerprint density for a specific radius of 3.</p></li>
+<li><p><strong>HallkierAlpha</strong> : The HallkierAlpha feature denotes the Hall-Kier alpha value for a molecule. It is a measure of molecular shape and can provide insights into the overall structure of the molecule.</p></li>
+<li><p><strong>HeavyAtomMolWt</strong> : This feature represents the molecular weight of heavy atoms only, excluding hydrogen atoms. It focuses on the mass of non-hydrogen atoms within the molecule.</p></li>
+<li><p><strong>Kappa3</strong> : The Kappa3 feature corresponds to the Hall-Kier Kappa3 value, which is a molecular shape descriptor. It provides information about the shape and spatial arrangement of atoms within the molecule.</p></li>
+<li><p><strong>MaxAbsEStateIndex</strong> : This feature represents the maximum absolute value of the E-state index. The E-state index relates to the electronic properties of a molecule, and its maximum absolute value can indicate the presence of specific electronic characteristics.</p></li>
+<li><p><strong>MinEStateIndex</strong> : MinEStateIndex denotes the minimum value of the E-state index. It provides information about the lowest observed electronic property value within the molecule.</p></li>
+<li><p><strong>NumHeteroatoms</strong> : This feature indicates the number of heteroatoms present in a molecule. Heteroatoms are atoms other than carbon and hydrogen, such as oxygen, nitrogen, sulfur, etc. This feature provides insights into the diversity and composition of atoms within the molecule.</p></li>
+<li><p><strong>PEOE_VSA10</strong> : PEOE_VSA10 represents the partial equalization of orbital electronegativity Van der Waals surface area contribution for a specific atom type. It captures the surface area contribution of a particular atom type to the overall electrostatic properties.</p></li>
+<li><p><strong>PEOE_VSA14</strong> : Similar to PEOE_VSA10, PEOE_VSA14 also represents the partial equalization of orbital electronegativity Van der Waals surface area contribution for a specific atom type.</p></li>
+<li><p><strong>PEOE_VSA6</strong> : This feature corresponds to the partial equalization of orbital electronegativity Van der Waals surface area contribution for a specific atom type at a different level.</p></li>
+<li><p><strong>PEOE_VSA7</strong> : Similar to PEOE_VSA6, PEOE_VSA7 represents the partial equalization of orbital electronegativity Van der Waals surface area contribution for a specific atom type.</p></li>
+<li><p><strong>PEOE_VSA8</strong> : PEOE_VSA8 denotes the partial equalization of orbital electronegativity Van der Waals surface area contribution for a specific atom type.</p></li>
+<li><p><strong>SMR_VSA10</strong> : SMR_VSA10 represents the solvent-accessible surface area Van der Waals surface area contribution for a specific atom type. It captures the contribution of a specific atom type to the solvent-accessible surface area.</p></li>
+<li><p><strong>SMR_VSA5</strong> : Similar to SMR_VSA10, this feature denotes the solvent-accessible surface area Van der Waals surface area contribution for a specific atom type at a different level.</p></li>
+<li><p><strong>SlogP_VSA3</strong> : The SlogP_VSA3 feature represents the LogP-based surface area contribution. It captures the contribution of a specific atom type to the surface area based on its logarithmic partition coefficient.</p></li>
+<li><p><strong>VSA_EState9</strong> : This feature denotes the E-state fragment contribution for the Van der Waals surface area calculation. It captures the fragment-specific contribution to the electrostatic properties of the molecule.</p></li>
+<li><p><strong>fr_COO</strong> : The fr_COO feature represents the number of carboxyl (COO) functional groups present in the molecule. It ranges from 0 to 8, providing insights into the presence and abundance of carboxyl groups.</p></li>
+<li><p><strong>fr_COO2</strong> : Similar to fr_COO, fr_COO2 represents the number of carboxyl (COO) functional groups, ranging from 0 to 8.</p></li>
+<li><p><strong>EC1</strong> : EC1 is a binary feature representing a predicted label related to <strong>Oxidoreductases</strong>. It serves as one of the target variables for prediction.</p></li>
+<li><p><strong>EC2</strong> : EC2 is another binary feature representing a predicted label related to <strong>Transferases</strong>. It serves as another target variable for prediction.</p></li>
+</ol>
+</section>
+<section id="data-cleaning" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data cleaning</h1>
+<section id="removal-of-unnecessary-variables" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="removal-of-unnecessary-variables"><span class="header-section-number">2.1</span> Removal of unnecessary variables</h2>
+<p>In the first section, we will try to remove all the variables that will not be required for our analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df_train <span class="ot">&lt;-</span> df_train <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"id"</span>,<span class="st">"EC3"</span>,<span class="st">"EC4"</span>,<span class="st">"EC5"</span>,<span class="st">"EC6"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="check-for-null-values" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="check-for-null-values"><span class="header-section-number">2.2</span> Check for null values</h2>
+<p>In this step, we will try to check for the presence of null values in the dataset.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-missvis" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-missvis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-missvis-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-missvis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Missingness in the dataset
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Based on the <a href="#fig-missvis" class="quarto-xref">Figure&nbsp;1</a>, we can observe that</p>
+<div class="alert alert-block alert-success">
+<p>✅ The dataset does not contain any missing values. This indicates that we have a clean dataset which is ready for EDA and further analysis.</p>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Exploratory Data Analysis</h1>
+<p>We can observe that there are a total of <strong>32 variables</strong> in the current dataset !!! <code style="background:yellow;color:red">These are a lot more than what we would ideally like to analyse.</code> Such types of datasets require a special kind of analysis called as <strong>High Dimensional Data Analysis</strong> which concentrate majorly on techniques such as clustering and pricipal component analysis to reduce the number of variables without completely losing data. While this is the right way to go about it, this notebook will however study the correlation of each variable and try to reduce the number of variables which are observed to show high multi-collinearity.</p>
+<section id="correlation-plot" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="correlation-plot"><span class="header-section-number">3.1</span> Correlation plot</h2>
+<p>Let us understand how each of these variables correlate.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-corrplot" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-corrplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-corrplot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-corrplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Correlation plot
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can observe from figure <a href="#fig-corrplot" class="quarto-xref">Figure&nbsp;2</a>,</p>
+<div class="alert alert-block alert-info">
+<p>None of the variables have an <strong> unusually high correlation with EC1 or EC2 </strong>. However, we do observe multiple variables which have high correlation to each other. This pheonmenon is called <strong> multi-collinearity </strong>. Let us set a correlation threshold of 75%. Any variables with correlation values higher than this will be dropped from the dataset.</p>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_corr <span class="ot">=</span> <span class="fu">cor</span>(df_train)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>hc <span class="ot">=</span> <span class="fu">findCorrelation</span>(df_corr, <span class="at">cutoff=</span><span class="fl">0.75</span>) <span class="co"># Removing variables with greater than 75% correlation</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>hc <span class="ot">=</span> <span class="fu">sort</span>(hc)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df_train_new <span class="ot">=</span> df_train[,<span class="sc">-</span><span class="fu">c</span>(hc)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that we have removed the variables that observed to show multi-collinearity, let us now see how the revised dataset looks like.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="htmlwidget-c1d0836b0714e3f548a5" style="width:500px;height:500px;" class="datatables html-widget "></div>
+<script type="application/json" data-for="htmlwidget-c1d0836b0714e3f548a5">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6"],[11.93829424,0,6.606881965,0,12.84164325,0],[1.181818182,1.346153846,1.085714286,1.162790698,1.444444444,1.083333333],[-0.24,-0.09,-0.78,-1.3,-1.1,-0.98],[8.17,3.201490511,15.03388953,6.724301321,3.931271989,3.015404674],[11.92250394,10.93233796,11.2380483,11.17117021,9.855740741,10.08746929],[0.171585412,-4.830449539,-5.066255336,-5.276575465,-1.676296296,-1.669305556],[0,24.41586555,0,42.72776471,6.041840829,0],[91.53649165,7.822697123,15.64539425,21.33513764,11.93861058,5.969305288],[0,0,0,0,6.9237372,0],[0,0,53.37823529,0,19.38639965,0],[0,0,0,6.420821623,0,0],[17.74406608,7.822697123,15.64539425,15.64539425,11.93861058,11.75255023],[0,30.70589228,73.14361574,62.10730426,18.88348408,24.41586555],[0,0,0,0,2,1],[1,0,1,1,1,1],[1,1,1,1,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>EState_VSA2<\/th>\n      <th>FpDensityMorgan1<\/th>\n      <th>HallKierAlpha<\/th>\n      <th>Kappa3<\/th>\n      <th>MaxAbsEStateIndex<\/th>\n      <th>MinEStateIndex<\/th>\n      <th>PEOE_VSA10<\/th>\n      <th>PEOE_VSA14<\/th>\n      <th>PEOE_VSA6<\/th>\n      <th>PEOE_VSA7<\/th>\n      <th>PEOE_VSA8<\/th>\n      <th>SMR_VSA10<\/th>\n      <th>SMR_VSA5<\/th>\n      <th>fr_COO2<\/th>\n      <th>EC1<\/th>\n      <th>EC2<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":6,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[6,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Let us now create the correlation plot of the revised dataset.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-corrplotnew" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-corrplotnew-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-corrplotnew-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-corrplotnew-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Correlation plot of revised dataset
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-corrplotnew" class="quarto-xref">Figure&nbsp;3</a> depicts the correlation values of all the variables which do not observe to demonstrate multi-collinearity.</p>
+</section>
+<section id="sec-label1" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-label1"><span class="header-section-number">3.2</span> Univariate analysis</h2>
+<p>Now that we have figured out the variables of interest, we will perform a univariate analysis of the revised dataset. One of the best ways to study the overall distribution of the variables is through a faceted histogram. Let us dive deeper.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-facehist" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-facehist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-facehist-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-facehist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Univariate analysis of variables
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Based on our analysis of figure <a href="#fig-facehist" class="quarto-xref">Figure&nbsp;4</a>, we can observe that</p>
+<div class="alert alert-block alert-warning">
+<p>while most variables range over a large scale in the X-axis, certain variables, namely <b> FpDensityMorgan1 </b> and <b> Kappa3 </b> range over a very small scale on the X-axis. This indicates that there is a large scale difference among the various variables. Hence, the dataset could benefit from <b>standardisation technique</b> at a later point of the analysis.</p>
+</div>
+</section>
+<section id="multi-variate-analysis" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="multi-variate-analysis"><span class="header-section-number">3.3</span> Multi-variate analysis</h2>
+<p>Now that we have performed a univariate analysis, it is now time to perform a multi-variate analysis to understand our variables better. For this, we need to first zone in on the most important variables which we will be studying. We can utilised the XGBoost algorithm which rates the variables based on a boosted score.</p>
+<section id="feature-importance" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="feature-importance"><span class="header-section-number">3.3.1</span> Feature importance</h3>
+<p>To study feature importance, let us use the XGBoost algorithm.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">101</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df_train_new_EC1 <span class="ot">&lt;-</span> df_train_new <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>EC2)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df_train_new_EC2 <span class="ot">&lt;-</span> df_train_new <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>EC1)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>sample_EC1<span class="ot">=</span><span class="fu">sample.split</span>(df_train_new_EC1<span class="sc">$</span>EC1,<span class="at">SplitRatio=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>train_EC1<span class="ot">=</span><span class="fu">subset</span>(df_train_new_EC1,sample_EC1<span class="sc">==</span>T)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>test_EC1<span class="ot">=</span><span class="fu">subset</span>(df_train_new_EC1,sample_EC1<span class="sc">==</span>F)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>sample_EC2<span class="ot">=</span><span class="fu">sample.split</span>(df_train_new_EC2<span class="sc">$</span>EC2,<span class="at">SplitRatio=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>train_EC2<span class="ot">=</span><span class="fu">subset</span>(df_train_new_EC2,sample_EC2<span class="sc">==</span>T)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>test_EC2<span class="ot">=</span><span class="fu">subset</span>(df_train_new_EC2,sample_EC2<span class="sc">==</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] train-logloss:0.604235 
+[2] train-logloss:0.592298 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] train-logloss:0.499218 
+[2] train-logloss:0.494251 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>xgb_EC1_importance <span class="ot">&lt;-</span> <span class="fu">xgb.importance</span>(<span class="fu">colnames</span>(train_EC1 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>EC1)), <span class="at">model =</span> xgb_model_EC1, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">as.matrix</span>(train_EC1 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>EC1)), <span class="at">label =</span> train_EC1<span class="sc">$</span>EC1)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>xgb_EC2_importance <span class="ot">&lt;-</span> <span class="fu">xgb.importance</span>(<span class="fu">colnames</span>(train_EC2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>EC2)), <span class="at">model =</span> xgb_model_EC2, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">as.matrix</span>(train_EC2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>EC2)), <span class="at">label =</span> train_EC2<span class="sc">$</span>EC2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-featplotEC1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-featplotEC1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-featplotEC1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-featplotEC1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Feature importances for EC1 using XGBoost
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-featplotEC2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-featplotEC2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-featplotEC2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-featplotEC2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Feature importances for EC2 using XGBoost
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Based on <a href="#fig-featplotEC1" class="quarto-xref">Figure&nbsp;5</a> and <a href="#fig-featplotEC2" class="quarto-xref">Figure&nbsp;6</a>,</p>
+<div class="alert alert-block alert-warning">
+<p>💡 we have obtained the top 5 features using the XGBoost model for each of the EC1 and EC2 indicators. This will help us concentrate our EDA efforts only on the most important features.💡</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>However, we need to think of an appropriate plot for us to visualise and understand the differences in the variables when it comes to EC1 and EC2 indicators. One such plot which can be used is the radar plot. The radar plot allows us to compare the standardised median or mean values for each variable while assessing the values for the EC1 and EC2 enzymes. Additionally, the radar plot is layered one over the other which gives us a better idea on the difference of the median standardised values and aids us to quickly understand any differences in the plot.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-radplot" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-radplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-radplot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-radplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Median standardised values for EC1 and EC2 indicators
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>After analysing <a href="#fig-radplot" class="quarto-xref">Figure&nbsp;7</a>, we observe that</p>
+<div class="alert alert-block alert-warning">
+<p>💡 The median standardised values for both EC1 and EC2 indicators are very similar. The major difference however can be observed for the variable PEOE_VSA7. EC2 is observed to demonstrate a relatively lower scaled value when compared to EC1.💡</p>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("htt");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
